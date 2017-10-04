@@ -19,8 +19,11 @@ $http = new HTTP([
 $response = $http->get('https://www.reddit.com');
 
 if ($response) {
-	echo $response['header'];
-	echo $response['body'];
+	echo '<pre>';
+	print_r($response['header']);
+	echo htmlentities($response['body']);
+
+	echo '</pre>';
 }
 
 $logs = $http->getLogs();
