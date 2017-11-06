@@ -71,7 +71,7 @@ class HTTP
 		}
 
 		if (isset($options['username']) && isset($options['password'])) {
-			curl_setopt($this->http, CURLOPT_USERPWD, $options['username'].':'.$options['password']);
+			curl_setopt($this->http, CURLOPT_USERPWD, $options['username'] . ':' . $options['password']);
 		}
 	}
 
@@ -105,7 +105,7 @@ class HTTP
 		curl_setopt($this->http, CURLOPT_URL, $url);
 		curl_setopt($this->http, CURLOPT_HTTPGET, true);
 
-		$this->logs[] = 'GET '.$url;
+		$this->logs[] = 'GET ' . $url;
 
 		$response = curl_exec($this->http);
 
@@ -113,16 +113,16 @@ class HTTP
 			$code = curl_getinfo($this->http, CURLINFO_HTTP_CODE);
 			$size = curl_getinfo($this->http, CURLINFO_HEADER_SIZE);
 
-			$this->logs[] = '[STATUS] '.$code;
+			$this->logs[] = '[STATUS] ' . $code;
 			$headers = $this->parseHeader(substr($response, 0, $size));
 
 			return [
 				'header' => $headers,
-				'body' => substr($response, $size),
+				'body'   => substr($response, $size),
 			];
 		}
 
-		$this->logs[] = '[ERROR] ['.curl_errno($this->http).'] '.curl_error($this->http);
+		$this->logs[] = '[ERROR] [' . curl_errno($this->http) . '] ' . curl_error($this->http);
 
 		return null;
 	}
@@ -146,7 +146,7 @@ class HTTP
 			curl_setopt($this->http, CURLOPT_POSTFIELDS, $queries);
 		}
 
-		$this->logs[] = 'POST '.$url.(($queries) ? (' '.$queries) : '');
+		$this->logs[] = 'POST ' . $url . (($queries) ? (' ' . $queries) : '');
 
 		$response = curl_exec($this->http);
 
@@ -154,16 +154,16 @@ class HTTP
 			$code = curl_getinfo($this->http, CURLINFO_HTTP_CODE);
 			$size = curl_getinfo($this->http, CURLINFO_HEADER_SIZE);
 
-			$this->logs[] = '[STATUS] '.$code;
+			$this->logs[] = '[STATUS] ' . $code;
 			$headers = $this->parseHeader(substr($response, 0, $size));
 
 			return [
 				'header' => $headers,
-				'body' => substr($response, $size),
+				'body'   => substr($response, $size),
 			];
 		}
 
-		$this->logs[] = '[ERROR] ['.curl_errno($this->http).'] '.curl_error($this->http);
+		$this->logs[] = '[ERROR] [' . curl_errno($this->http) . '] ' . curl_error($this->http);
 
 		return null;
 	}
@@ -183,7 +183,7 @@ class HTTP
 		curl_setopt($this->http, CURLOPT_HTTPGET, true);
 
 		if (is_dir($path)) {
-			$path = $path.DIRECTORY_SEPARATOR.md5(microtime());
+			$path = $path . DIRECTORY_SEPARATOR . md5(microtime());
 		}
 
 		$buffer = tmpfile();
@@ -197,7 +197,7 @@ class HTTP
 
 		curl_setopt($this->http, CURLOPT_FILE, $fp);
 
-		$this->logs[] = 'GET '.$url;
+		$this->logs[] = 'GET ' . $url;
 
 		$response = curl_exec($this->http);
 
@@ -207,7 +207,7 @@ class HTTP
 
 		if (!curl_errno($this->http)) {
 			$code = curl_getinfo($this->http, CURLINFO_HTTP_CODE);
-			$this->logs[] = '[STATUS] '.$code;
+			$this->logs[] = '[STATUS] ' . $code;
 
 			rewind($buffer);
 			$headers = $this->parseHeader(stream_get_contents($buffer));
@@ -215,8 +215,8 @@ class HTTP
 
 			if (isset($headers['Content-disposition'])) {
 				if (preg_match('/filename="([^"]+)/', $headers['Content-disposition'], $matches)) {
-					rename($path, dirname($path).DIRECTORY_SEPARATOR.$matches[1]);
-					$path = dirname($path).DIRECTORY_SEPARATOR.$matches[1];
+					rename($path, dirname($path) . DIRECTORY_SEPARATOR . $matches[1]);
+					$path = dirname($path) . DIRECTORY_SEPARATOR . $matches[1];
 				}
 			}
 
@@ -226,7 +226,7 @@ class HTTP
 			];
 		}
 
-		$this->logs[] = '[ERROR] ['.curl_errno($this->http).'] '.curl_error($this->http);
+		$this->logs[] = '[ERROR] [' . curl_errno($this->http) . '] ' . curl_error($this->http);
 
 		return false;
 	}
@@ -251,7 +251,7 @@ class HTTP
 					continue;
 				}
 
-				$fields[$key] = '@'.(((false !== strpos(PHP_OS, 'WIN'))) ? str_replace('/', '\\\\', $file) : $file);
+				$fields[$key] = '@' . (((false !== strpos(PHP_OS, 'WIN'))) ? str_replace('/', '\\\\', $file) : $file);
 			}
 		}
 
@@ -261,7 +261,7 @@ class HTTP
 			curl_setopt($this->http, CURLOPT_POSTFIELDS, $queries);
 		}
 
-		$this->logs[] = 'POST '.$url.(($queries) ? (' '.$queries) : '');
+		$this->logs[] = 'POST ' . $url . (($queries) ? (' ' . $queries) : '');
 
 		$response = curl_exec($this->http);
 
@@ -269,16 +269,16 @@ class HTTP
 			$code = curl_getinfo($this->http, CURLINFO_HTTP_CODE);
 			$size = curl_getinfo($this->http, CURLINFO_HEADER_SIZE);
 
-			$this->logs[] = '[STATUS] '.$code;
+			$this->logs[] = '[STATUS] ' . $code;
 			$headers = $this->parseHeader(substr($response, 0, $size));
 
 			return [
 				'header' => $headers,
-				'body' => substr($response, $size),
+				'body'   => substr($response, $size),
 			];
 		}
 
-		$this->logs[] = '[ERROR] ['.curl_errno($this->http).'] '.curl_error($this->http);
+		$this->logs[] = '[ERROR] [' . curl_errno($this->http) . '] ' . curl_error($this->http);
 
 		return null;
 	}
@@ -293,8 +293,8 @@ class HTTP
 	 */
 	public function useProxy($host, $port, $username, $password)
 	{
-		curl_setopt($this->http, CURLOPT_PROXY, $host.':'.$port);
-		curl_setopt($this->http, CURLOPT_PROXYUSERPWD, $username.':'.$password);
+		curl_setopt($this->http, CURLOPT_PROXY, $host . ':' . $port);
+		curl_setopt($this->http, CURLOPT_PROXYUSERPWD, $username . ':' . $password);
 	}
 
 	/**
@@ -329,7 +329,7 @@ class HTTP
 		}
 
 		curl_setopt($this->http, CURLOPT_HTTPHEADER, [
-			'Cookie: '.http_build_query($this->cookies, '', '; '),
+			'Cookie: ' . http_build_query($this->cookies, '', '; '),
 		]);
 
 		return $headers;
