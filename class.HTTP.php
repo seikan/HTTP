@@ -189,7 +189,7 @@ class HTTP
 		$buffer = tmpfile();
 		curl_setopt($this->http, CURLOPT_WRITEHEADER, $buffer);
 
-		if (false === ($fp = fopen($path, 'w'))) {
+		if (($fp = fopen($path, 'w')) === false) {
 			$this->logs[] = '[ERROR] Directory is not writable.';
 
 			return false;
@@ -251,7 +251,7 @@ class HTTP
 					continue;
 				}
 
-				$fields[$key] = '@' . (((false !== strpos(PHP_OS, 'WIN'))) ? str_replace('/', '\\\\', $file) : $file);
+				$fields[$key] = '@' . (((strpos(PHP_OS, 'WIN') !== false)) ? str_replace('/', '\\\\', $file) : $file);
 			}
 		}
 
@@ -311,14 +311,14 @@ class HTTP
 		$rows = explode("\r\n", $raw);
 
 		foreach ($rows as $row) {
-			if (false === strpos($row, ':')) {
+			if (strpos($row, ':') === false) {
 				continue;
 			}
 
 			list($key, $value) = explode(':', $row, 2);
 			$headers[$key] = trim($value);
 
-			if ('Set-Cookie' == $key) {
+			if ($key == 'Set-Cookie') {
 				$parts = explode(';', trim($value));
 
 				foreach ($parts as $part) {
