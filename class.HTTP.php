@@ -30,11 +30,11 @@ class HTTP
 	private $logs = [];
 
 	/**
-	 * Collection of cookies.
+	 * File to store cookies.
 	 *
-	 * @var array
+	 * @var string
 	 */
-	private $cookies = [];
+	private $cookies;
 
 	/**
 	 * Initialize cURL object.
@@ -53,6 +53,11 @@ class HTTP
 		curl_setopt($this->http, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($this->http, CURLOPT_ENCODING, 'gzip, deflate');
 		curl_setopt($this->http, CURLOPT_HTTP_VERSION, '1.1');
+
+		$this->cookies = tempnam(sys_get_temp_dir(), 'cookies_' . md5(microtime()));
+
+		curl_setopt($this->http, CURLOPT_COOKIEFILE, $this->cookies);
+		curl_setopt($this->http, CURLOPT_COOKIEJAR, $this->cookies);
 
 		if (isset($options['userAgent'])) {
 			curl_setopt($this->http, CURLOPT_USERAGENT, $options['userAgent']);
@@ -76,7 +81,7 @@ class HTTP
 	}
 
 	/**
-	 * Destroy PDO object.
+	 * Destroy cURL object.
 	 */
 	public function __destruct()
 	{
@@ -291,10 +296,13 @@ class HTTP
 	 * @param string $username
 	 * @param string $password
 	 */
-	public function useProxy($host, $port, $username, $password)
+	public function useProxy($host, $port, $username = '', $password = '')
 	{
 		curl_setopt($this->http, CURLOPT_PROXY, $host . ':' . $port);
-		curl_setopt($this->http, CURLOPT_PROXYUSERPWD, $username . ':' . $password);
+
+		if ($username && $password) {
+			curl_setopt($this->http, CURLOPT_PROXYUSERPWD, $username . ':' . $password);
+		}
 	}
 
 	/**
@@ -317,20 +325,7 @@ class HTTP
 
 			list($key, $value) = explode(':', $row, 2);
 			$headers[$key] = trim($value);
-
-			if ($key == 'Set-Cookie') {
-				$parts = explode(';', trim($value));
-
-				foreach ($parts as $part) {
-					parse_str($part, $chunks);
-					$this->cookies = array_merge($this->cookies, $chunks);
-				}
-			}
 		}
-
-		curl_setopt($this->http, CURLOPT_HTTPHEADER, [
-			'Cookie: ' . http_build_query($this->cookies, '', '; '),
-		]);
 
 		return $headers;
 	}
